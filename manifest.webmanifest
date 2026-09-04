@@ -1,0 +1,19 @@
+{
+  "name": "Free Bet Blackjack Trainer",
+  "short_name": "Free Bet 21",
+  "description": "Simulador de Free Bet Blackjack con cronómetro por decisión y estadísticas.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#06110c",
+  "theme_color": "#07150f",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
