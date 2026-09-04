@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07150f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Free Bet 21">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <title>Free Bet Blackjack Trainer</title>
+  <style>
+    :root{color-scheme:dark;--bg:#06110c;--panel:#0b1b13;--card:#f8f5eb;--ink:#111;--muted:#8fa99a;--line:#1d3a2a;--green:#29c978;--red:#ff6b6b;--gold:#e8bf64;--blue:#7db8ff}
+    *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,system-ui,sans-serif;background:radial-gradient(circle at top,#123523 0,#06110c 38%);color:#f4f7f5;min-height:100vh;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom)}
+    .app{max-width:720px;margin:auto;padding:14px 0 28px}.top{display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:14px}.title{font-size:22px;font-weight:800}.sub{font-size:12px;color:var(--muted)}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}.stat,.panel{background:rgba(11,27,19,.92);border:1px solid var(--line);border-radius:16px}.stat{padding:10px;text-align:center}.stat b{display:block;font-size:18px;margin-top:3px}.stat span{font-size:11px;color:var(--muted)}
+    .panel{padding:14px}.row{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}.cards{display:flex;gap:8px;flex-wrap:wrap;min-height:80px}.playing-card{width:56px;height:78px;border-radius:9px;background:var(--card);color:var(--ink);border:1px solid #d9d4c8;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:20px;font-weight:800;box-shadow:0 5px 12px rgba(0,0,0,.22)}.playing-card.red{color:#bd2f3a}.playing-card.hidden{background:repeating-linear-gradient(45deg,#163524,#163524 7px,#24533a 7px,#24533a 14px);color:#fff;border-color:#4e7b61}.total{font-size:13px;margin-top:7px;color:#d6e3db}.divider{height:1px;background:var(--line);margin:16px 0}
+    .feedback{margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:11px;min-height:46px;font-size:14px;background:#081710}.feedback.good{border-color:#216b43}.feedback.bad{border-color:#7c3434}.feedback.win{border-color:#806a34}.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.btn{min-height:50px;border:1px solid var(--line);border-radius:13px;background:#10261a;color:#fff;font-weight:800;font-size:14px}.btn:active{transform:scale(.985)}.btn.primary{background:#16663c;border-color:#258a55}.btn:disabled{opacity:.38}.next{width:100%;margin-top:9px}.tiny{font-size:12px;color:var(--muted)}.session{margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px}.log{font-size:12px;line-height:1.65;color:#c1d2c7;max-height:150px;overflow:auto}.chip{padding:5px 8px;border:1px solid var(--line);border-radius:999px;font-size:11px;color:#c9d9cf}.free{color:var(--gold)}
+    @media(max-width:430px){.stats{grid-template-columns:repeat(2,1fr)}.session{grid-template-columns:1fr}.playing-card{width:52px;height:74px}.title{font-size:20px}}
+  </style>
+</head>
+<body>
+<main class="app">
+  <div class="top"><div><div class="title">🃏 Free Bet Blackjack</div><div class="sub">Simulador + velocidad de decisión</div></div><div class="chip">Winpot practice</div></div>
+  <section class="stats">
+    <div class="stat"><span>Saldo</span><b id="bankroll">$1,000</b></div>
+    <div class="stat"><span>Decisión</span><b id="timer">0.00 s</b></div>
+    <div class="stat"><span>Precisión</span><b id="accuracy">—</b></div>
+    <div class="stat"><span>Promedio</span><b id="avg">—</b></div>
+  </section>
+
+  <section class="panel">
+    <div class="row"><div class="tiny">Mano <b id="handNo">1</b> · Apuesta <b id="bet">$50</b></div><div id="record" class="tiny">0 G · 0 P · 0 Push</div></div>
+    <div style="margin-top:15px"><div class="label">Dealer</div><div id="dealerCards" class="cards"></div><div id="dealerTotal" class="total">Carta oculta</div></div>
+    <div class="divider"></div>
+    <div><div class="label">Tu mano</div><div id="playerCards" class="cards"></div><div id="playerTotal" class="total"></div></div>
+    <div id="feedback" class="feedback">Toma tu decisión.</div>
+    <div class="actions"><button id="hit" class="btn">H · HIT</button><button id="stand" class="btn">S · STAND</button><button id="double" class="btn primary">D · DOUBLE</button></div>
+    <button id="next" class="btn next" disabled>Nueva mano</button>
+  </section>
+
+  <section class="session">
+    <div class="panel"><div class="label">Esta mano</div><div id="handLog" class="log">Aún no hay decisiones.</div></div>
+    <div class="panel"><div class="row"><div><div class="label" style="margin:0">Sesión</div><div id="sessionText" class="tiny" style="margin-top:6px">0 manos · 0 decisiones</div></div><button id="reset" class="btn" style="min-height:42px;padding:0 14px">Reiniciar</button></div><div class="tiny" style="margin-top:10px">Reglas activas: 6 mazos · dealer pide hasta 17 · dealer 22 = push · free double en 9/10/11.</div></div>
+  </section>
+</main>
+<script>
+(()=>{
+ const $=id=>document.getElementById(id), BET=50;
+ const ranks=['A','2','3','4','5','6','7','8','9','10','J','Q','K'], suits=['♠','♥','♦','♣'];
+ let S={bankroll:1000,handNo:0,wins:0,losses:0,pushes:0,deck:[],player:[],dealer:[],finished:true,doubled:false,freeDouble:false,decisions:[],times:[],correct:0,totalDecisions:0,start:0,raf:null};
+ const save=()=>localStorage.setItem('freebet21-state',JSON.stringify({bankroll:S.bankroll,handNo:S.handNo,wins:S.wins,losses:S.losses,pushes:S.pushes,times:S.times,correct:S.correct,totalDecisions:S.totalDecisions}));
+ function load(){try{const x=JSON.parse(localStorage.getItem('freebet21-state')||'null');if(x)Object.assign(S,x)}catch{}}
+ function shoe(){const d=[];for(let n=0;n<6;n++)for(const s of suits)for(const r of ranks)d.push({r,s});for(let i=d.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]]}return d}
+ function draw(){if(S.deck.length<45)S.deck=shoe();return S.deck.pop()}
+ function cv(r){return r==='A'?11:['J','Q','K'].includes(r)?10:+r}
+ function val(h){let t=0,a=0;for(const c of h){t+=cv(c.r);if(c.r==='A')a++}while(t>21&&a){t-=10;a--}return{total:t,soft:a>0}}
+ function canFreeDouble(){return S.player.length===2&&!val(S.player).soft&&[9,10,11].includes(val(S.player).total)}
+ function strategy(){const p=val(S.player),d=cv(S.dealer[0].r),cd=S.player.length===2;if(p.total>=21)return'S';if(p.soft){if(p.total>=20)return'S';if(p.total===19)return cd&&d===6?'D':'S';if(p.total===18){if(cd&&d>=2&&d<=6)return'D';return d===7||d===8||d<=6?'S':'H'}if(p.total===17)return cd&&d>=3&&d<=6?'D':'H';if(p.total===16||p.total===15)return cd&&d>=4&&d<=6?'D':'H';if(p.total===14||p.total===13)return cd&&d>=5&&d<=6?'D':'H';return'H'}if(p.total>=17)return'S';if(p.total>=13)return d>=2&&d<=6?'S':'H';if(p.total===12)return d>=4&&d<=6?'S':'H';if(p.total===11)return cd?'D':'H';if(p.total===10)return cd&&d<=9?'D':'H';if(p.total===9)return cd&&d>=3&&d<=6?'D':'H';return'H'}
+ function card(c,hidden=false){const e=document.createElement('div');e.className='playing-card'+(hidden?' hidden':(c.s==='♥'||c.s==='♦'?' red':''));e.innerHTML=hidden?'◆':`<span>${c.r}</span><span style="font-size:15px">${c.s}</span>`;return e}
+ function render(reveal=false){$('bankroll').textContent='$'+Math.round(S.bankroll);$('handNo').textContent=Math.max(1,S.handNo);$('bet').innerHTML='$'+(S.doubled&&!S.freeDouble?BET*2:BET)+(S.freeDouble?' <span class="free">+ FREE</span>':'');$('record').textContent=`${S.wins} G · ${S.losses} P · ${S.pushes} Push`;$('playerCards').replaceChildren(...S.player.map(c=>card(c)));const p=val(S.player);$('playerTotal').textContent=(p.soft?'Soft ':'Hard ')+p.total;$('dealerCards').replaceChildren(...S.dealer.map((c,i)=>card(c,!reveal&&i===1)));$('dealerTotal').textContent=reveal?((val(S.dealer).soft?'Soft ':'Hard ')+val(S.dealer).total):('Visible: '+S.dealer[0].r+' · carta oculta');$('accuracy').textContent=S.totalDecisions?Math.round(S.correct/S.totalDecisions*100)+'%':'—';$('avg').textContent=S.times.length?(S.times.reduce((a,b)=>a+b,0)/S.times.length).toFixed(2)+' s':'—';$('sessionText').textContent=`${S.handNo} manos · ${S.totalDecisions} decisiones · ${S.correct} correctas`;$('handLog').innerHTML=S.decisions.length?S.decisions.map((x,i)=>`${i+1}. ${x.choice} · ${x.time.toFixed(2)}s ${x.ok?'✅':'❌ → '+x.correct}`).join('<br>'):'Aún no hay decisiones.';$('double').disabled=S.finished||S.player.length!==2}
+ function timer(){cancelAnimationFrame(S.raf);S.start=performance.now();const tick=()=>{if(S.finished)return;$('timer').textContent=((performance.now()-S.start)/1000).toFixed(2)+' s';S.raf=requestAnimationFrame(tick)};S.raf=requestAnimationFrame(tick)}
+ function reg(choice){if(S.finished)return null;cancelAnimationFrame(S.raf);const t=(performance.now()-S.start)/1000,c=strategy(),ok=choice===c;S.totalDecisions++;S.times.push(t);if(ok)S.correct++;S.decisions.push({choice,time:t,correct:c,ok});save();return{t,c,ok}}
+ function setActions(x){$('hit').disabled=!x;$('stand').disabled=!x;$('double').disabled=!x||S.player.length!==2}
+ function start(){if(S.bankroll<BET){$('feedback').textContent='Sin saldo suficiente. Reinicia la sesión.';return}S.handNo++;S.bankroll-=BET;S.player=[draw(),draw()];S.dealer=[draw(),draw()];S.finished=false;S.doubled=false;S.freeDouble=false;S.decisions=[];$('next').disabled=true;setActions(true);$('feedback').className='feedback';$('feedback').textContent='Toma tu primera decisión.';render(false);const p=val(S.player),d=val(S.dealer);if(p.total===21){if(d.total===21)finish('push','🤝 Blackjack contra Blackjack — PUSH.');else{S.bankroll+=BET*2.5;S.wins++;S.finished=true;setActions(false);$('next').disabled=false;$('feedback').className='feedback win';$('feedback').textContent='🂡 BLACKJACK — ganaste 3:2.';render(true);save()}return}$('timer').textContent='0.00 s';timer();save()}
+ function hit(){const r=reg('H');if(!r)return;S.player.push(draw());render(false);const p=val(S.player);$('feedback').className='feedback '+(r.ok?'good':'bad');if(p.total>21){finish('loss',`💥 BUST con ${p.total}. Dealer gana.`);return}if(p.total===21){$('feedback').textContent=`${r.ok?'✅':'❌'} ${r.t.toFixed(2)}s · Llegaste a 21.`;dealerTurn();return}$('feedback').textContent=`${r.ok?'✅ Correcto':'❌ Estrategia: '+r.c} · ${r.t.toFixed(2)}s · La mano continúa.`;timer()}
+ function stand(){const r=reg('S');if(!r)return;$('feedback').className='feedback '+(r.ok?'good':'bad');$('feedback').textContent=`${r.ok?'✅ Correcto':'❌ Estrategia: '+r.c} · ${r.t.toFixed(2)}s · Dealer juega…`;dealerTurn()}
+ function dbl(){if(S.player.length!==2)return;const r=reg('D');if(!r)return;S.doubled=true;S.freeDouble=canFreeDouble();if(!S.freeDouble){if(S.bankroll<BET){$('feedback').textContent='No hay saldo para doblar.';return}S.bankroll-=BET}S.player.push(draw());render(false);const p=val(S.player);if(p.total>21){finish('loss',`💥 Double → ${p.total} BUST.`);return}$('feedback').className='feedback '+(r.ok?'good':'bad');$('feedback').innerHTML=`${r.ok?'✅ Correcto':'❌ Estrategia: '+r.c} · ${S.freeDouble?'<span class="free">FREE DOUBLE</span>':'Double'} · una sola carta.`;dealerTurn()}
+ function dealerTurn(){S.finished=true;cancelAnimationFrame(S.raf);setActions(false);while(val(S.dealer).total<17)S.dealer.push(draw());render(true);const p=val(S.player),d=val(S.dealer),cashStake=S.doubled&&!S.freeDouble?BET*2:BET,profitStake=S.doubled?BET*2:BET;if(d.total===22){S.bankroll+=cashStake;S.pushes++;end(`🟨 Dealer 22 → PUSH (Free Bet).`)}else if(d.total>21){S.bankroll+=cashStake+profitStake;S.wins++;end(`🏆 Dealer BUST con ${d.total} — GANASTE.`)}else if(p.total>d.total){S.bankroll+=cashStake+profitStake;S.wins++;end(`🏆 ${p.total} vs ${d.total} — GANASTE.`)}else if(p.total<d.total){S.losses++;end(`❌ ${p.total} vs ${d.total} — Dealer gana.`)}else{S.bankroll+=cashStake;S.pushes++;end(`🤝 ${p.total} vs ${d.total} — PUSH.`)}}
+ function finish(kind,msg){S.finished=true;cancelAnimationFrame(S.raf);setActions(false);if(kind==='loss')S.losses++;if(kind==='push'){S.bankroll+=S.doubled&&!S.freeDouble?BET*2:BET;S.pushes++}end(msg)}
+ function end(msg){$('feedback').className='feedback win';$('feedback').textContent=msg;$('next').disabled=false;$('timer').textContent='—';render(true);save()}
+ $('hit').addEventListener('click',hit);$('stand').addEventListener('click',stand);$('double').addEventListener('click',dbl);$('next').addEventListener('click',start);$('reset').addEventListener('click',()=>{if(!confirm('¿Reiniciar saldo y estadísticas?'))return;localStorage.removeItem('freebet21-state');cancelAnimationFrame(S.raf);S={bankroll:1000,handNo:0,wins:0,losses:0,pushes:0,deck:shoe(),player:[],dealer:[],finished:true,doubled:false,freeDouble:false,decisions:[],times:[],correct:0,totalDecisions:0,start:0,raf:null};start()});
+ load();S.deck=shoe();start();if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
+})();
+</script>
+</body>
+</html>
