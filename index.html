@@ -13,16 +13,17 @@
   <style>
     :root{color-scheme:dark;--bg:#06110c;--panel:#0b1b13;--card:#f8f5eb;--ink:#111;--muted:#8fa99a;--line:#1d3a2a;--green:#29c978;--red:#ff6b6b;--gold:#e8bf64;--blue:#7db8ff}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,system-ui,sans-serif;background:radial-gradient(circle at top,#123523 0,#06110c 38%);color:#f4f7f5;min-height:100vh;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom)}
-    .app{max-width:720px;margin:auto;padding:14px 0 28px}.top{display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:14px}.title{font-size:22px;font-weight:800}.sub{font-size:12px;color:var(--muted)}
-    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}.stat,.panel{background:rgba(11,27,19,.92);border:1px solid var(--line);border-radius:16px}.stat{padding:10px;text-align:center}.stat b{display:block;font-size:18px;margin-top:3px}.stat span{font-size:11px;color:var(--muted)}
+    .app{max-width:720px;margin:auto;padding:14px 0 28px}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px}.title{font-size:22px;font-weight:800}.sub{font-size:12px;color:var(--muted)}
+    .top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}.stat,.panel{background:rgba(11,27,19,.92);border:1px solid var(--line);border-radius:16px}.stat{padding:10px;text-align:center}.stat b{display:block;font-size:18px;margin-top:3px}.stat span{font-size:11px;color:var(--muted)}
     .panel{padding:14px}.row{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}.cards{display:flex;gap:8px;flex-wrap:wrap;min-height:80px}.playing-card{width:56px;height:78px;border-radius:9px;background:var(--card);color:var(--ink);border:1px solid #d9d4c8;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:20px;font-weight:800;box-shadow:0 5px 12px rgba(0,0,0,.22)}.playing-card.red{color:#bd2f3a}.playing-card.hidden{background:repeating-linear-gradient(45deg,#163524,#163524 7px,#24533a 7px,#24533a 14px);color:#fff;border-color:#4e7b61}.total{font-size:13px;margin-top:7px;color:#d6e3db}.divider{height:1px;background:var(--line);margin:16px 0}
     .feedback{margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:11px;min-height:46px;font-size:14px;background:#081710}.feedback.good{border-color:#216b43}.feedback.bad{border-color:#7c3434}.feedback.win{border-color:#806a34}.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.btn{min-height:50px;border:1px solid var(--line);border-radius:13px;background:#10261a;color:#fff;font-weight:800;font-size:14px}.btn:active{transform:scale(.985)}.btn.primary{background:#16663c;border-color:#258a55}.btn:disabled{opacity:.38}.next{width:100%;margin-top:9px}.tiny{font-size:12px;color:var(--muted)}.session{margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px}.log{font-size:12px;line-height:1.65;color:#c1d2c7;max-height:150px;overflow:auto}.chip{padding:5px 8px;border:1px solid var(--line);border-radius:999px;font-size:11px;color:#c9d9cf}.free{color:var(--gold)}
-    @media(max-width:430px){.stats{grid-template-columns:repeat(2,1fr)}.session{grid-template-columns:1fr}.playing-card{width:52px;height:74px}.title{font-size:20px}}
+    .guide-btn{min-height:38px;padding:0 12px;border-radius:999px;border:1px solid #315f45;background:#10291c;color:#eef8f1;font-weight:800;font-size:12px}.guide-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:flex-end;justify-content:center;padding:18px;z-index:50}.guide-backdrop.open{display:flex}.guide-sheet{width:min(720px,100%);max-height:86vh;overflow:auto;background:#091810;border:1px solid #295239;border-radius:22px;padding:18px;box-shadow:0 18px 60px rgba(0,0,0,.45)}.guide-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;position:sticky;top:-18px;background:#091810;padding:18px 0 10px;z-index:2}.guide-title{font-size:20px;font-weight:850}.guide-close{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:#10261a;color:#fff;font-size:20px}.guide-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 14px}.guide-tab{min-height:44px;border-radius:12px;border:1px solid var(--line);background:#0d2116;color:#dce8e0;font-weight:800}.guide-tab.active{background:#185f3a;border-color:#2b8c58}.guide-pane{display:none}.guide-pane.active{display:block}.memory-box{border:1px solid #335f45;background:#0c2116;border-radius:14px;padding:12px;margin-bottom:12px}.memory-box strong{color:var(--gold)}.rule-list{display:grid;gap:8px}.rule{display:grid;grid-template-columns:minmax(88px,.8fr) 1.5fr;gap:10px;align-items:center;padding:11px;border:1px solid var(--line);border-radius:13px;background:#0b1d14}.rule .hand{font-weight:900;font-size:15px}.rule .move{font-size:13px;line-height:1.45;color:#dbe7df}.move b{color:#fff}.h{color:#7db8ff}.s{color:#7ee2a6}.d{color:#e8bf64}.guide-note{margin-top:12px;font-size:12px;line-height:1.55;color:var(--muted)}
+    @media(max-width:430px){.stats{grid-template-columns:repeat(2,1fr)}.session{grid-template-columns:1fr}.playing-card{width:52px;height:74px}.title{font-size:20px}.top{align-items:flex-start}.top-actions{max-width:145px}.chip{display:none}.rule{grid-template-columns:82px 1fr}.guide-backdrop{padding:8px}.guide-sheet{border-radius:20px 20px 14px 14px}}
   </style>
 </head>
 <body>
 <main class="app">
-  <div class="top"><div><div class="title">🃏 Free Bet Blackjack</div><div class="sub">Simulador + velocidad de decisión</div></div><div class="chip">Winpot practice</div></div>
+  <div class="top"><div><div class="title">🃏 Free Bet Blackjack</div><div class="sub">Simulador + velocidad de decisión</div></div><div class="top-actions"><button id="guideOpen" class="guide-btn">📘 Guía rápida</button><div class="chip">Winpot practice</div></div></div>
   <section class="stats">
     <div class="stat"><span>Saldo</span><b id="bankroll">$1,000</b></div>
     <div class="stat"><span>Decisión</span><b id="timer">0.00 s</b></div>
@@ -45,6 +46,41 @@
     <div class="panel"><div class="row"><div><div class="label" style="margin:0">Sesión</div><div id="sessionText" class="tiny" style="margin-top:6px">0 manos · 0 decisiones</div></div><button id="reset" class="btn" style="min-height:42px;padding:0 14px">Reiniciar</button></div><div class="tiny" style="margin-top:10px">Reglas activas: 6 mazos · dealer pide hasta 17 · dealer 22 = push · free double en 9/10/11.</div></div>
   </section>
 </main>
+
+<div id="guideBackdrop" class="guide-backdrop" role="dialog" aria-modal="true" aria-labelledby="guideTitle">
+  <section class="guide-sheet">
+    <div class="guide-head"><div><div id="guideTitle" class="guide-title">📘 Guía para memorizar</div><div class="sub">La versión corta, no la tabla gigante 😎</div></div><button id="guideClose" class="guide-close" aria-label="Cerrar guía">×</button></div>
+    <div class="guide-tabs"><button class="guide-tab active" data-guide="hard">Manos HARD</button><button class="guide-tab" data-guide="soft">Manos SOFT</button></div>
+
+    <div id="guide-hard" class="guide-pane active">
+      <div class="memory-box"><strong>Atajo para los doubles:</strong><br>9 = <b>3–6</b> · 10 = <b>2–9</b> · 11 = <b>TODO</b>.</div>
+      <div class="rule-list">
+        <div class="rule"><div class="hand">8 o menos</div><div class="move"><b class="h">HIT</b> siempre.</div></div>
+        <div class="rule"><div class="hand">9</div><div class="move"><b class="d">DOUBLE 3–6</b> · fuera de ahí <b class="h">HIT</b>.</div></div>
+        <div class="rule"><div class="hand">10</div><div class="move"><b class="d">DOUBLE 2–9</b> · contra 10/A <b class="h">HIT</b>.</div></div>
+        <div class="rule"><div class="hand">11</div><div class="move"><b class="d">DOUBLE TODO</b>.</div></div>
+        <div class="rule"><div class="hand">12</div><div class="move"><b class="s">STAND 4–6</b> · el resto <b class="h">HIT</b>.</div></div>
+        <div class="rule"><div class="hand">13–16</div><div class="move"><b class="s">STAND 2–6</b> · contra 7–A <b class="h">HIT</b>.</div></div>
+        <div class="rule"><div class="hand">17+</div><div class="move"><b class="s">STAND</b> siempre.</div></div>
+      </div>
+      <div class="guide-note">🧠 Forma rápida de verlo: <b>12 necesita 4–6</b>; de <b>13 a 16</b> te plantas contra la zona débil del dealer, <b>2–6</b>; con <b>17+</b> ya no lo mueves.</div>
+    </div>
+
+    <div id="guide-soft" class="guide-pane">
+      <div class="memory-box"><strong>Regla madre:</strong> A2–A6 = <b>O DOBLO o PIDO</b>. Nunca Stand.</div>
+      <div class="rule-list">
+        <div class="rule"><div class="hand">A2 / A3</div><div class="move"><b class="d">DOUBLE 5–6</b> · resto <b class="h">HIT</b>.</div></div>
+        <div class="rule"><div class="hand">A4 / A5</div><div class="move"><b class="d">DOUBLE 4–6</b> · resto <b class="h">HIT</b>.</div></div>
+        <div class="rule"><div class="hand">A6</div><div class="move"><b class="d">DOUBLE 3–6</b> · resto <b class="h">HIT</b>.</div></div>
+        <div class="rule"><div class="hand">A7</div><div class="move"><b class="d">D 2–6</b> · <b class="s">S 7–8</b> · <b class="h">H 9–A</b>.</div></div>
+        <div class="rule"><div class="hand">A8</div><div class="move"><b class="d">DOUBLE 6</b> · todo lo demás <b class="s">STAND</b>.</div></div>
+        <div class="rule"><div class="hand">A9</div><div class="move"><b class="s">STAND</b> siempre.</div></div>
+      </div>
+      <div class="guide-note">🧠 Escalera mental: A2/A3 → <b>5–6</b>, A4/A5 → <b>4–6</b>, A6 → <b>3–6</b>. Luego: A7 = 2–6 D / 7–8 S / 9–A H. Si el As ya tiene que valer 1, la mano dejó de ser Soft: usa la guía HARD.</div>
+    </div>
+  </section>
+</div>
+
 <script>
 (()=>{
  const $=id=>document.getElementById(id), BET=50;
@@ -70,6 +106,11 @@
  function dealerTurn(){S.finished=true;cancelAnimationFrame(S.raf);setActions(false);while(val(S.dealer).total<17)S.dealer.push(draw());render(true);const p=val(S.player),d=val(S.dealer),cashStake=S.doubled&&!S.freeDouble?BET*2:BET,profitStake=S.doubled?BET*2:BET;if(d.total===22){S.bankroll+=cashStake;S.pushes++;end(`🟨 Dealer 22 → PUSH (Free Bet).`)}else if(d.total>21){S.bankroll+=cashStake+profitStake;S.wins++;end(`🏆 Dealer BUST con ${d.total} — GANASTE.`)}else if(p.total>d.total){S.bankroll+=cashStake+profitStake;S.wins++;end(`🏆 ${p.total} vs ${d.total} — GANASTE.`)}else if(p.total<d.total){S.losses++;end(`❌ ${p.total} vs ${d.total} — Dealer gana.`)}else{S.bankroll+=cashStake;S.pushes++;end(`🤝 ${p.total} vs ${d.total} — PUSH.`)}}
  function finish(kind,msg){S.finished=true;cancelAnimationFrame(S.raf);setActions(false);if(kind==='loss')S.losses++;if(kind==='push'){S.bankroll+=S.doubled&&!S.freeDouble?BET*2:BET;S.pushes++}end(msg)}
  function end(msg){$('feedback').className='feedback win';$('feedback').textContent=msg;$('next').disabled=false;$('timer').textContent='—';render(true);save()}
+ const guide=$('guideBackdrop');
+ function openGuide(){guide.classList.add('open');$('guideClose').focus()}
+ function closeGuide(){guide.classList.remove('open');$('guideOpen').focus()}
+ $('guideOpen').addEventListener('click',openGuide);$('guideClose').addEventListener('click',closeGuide);guide.addEventListener('click',e=>{if(e.target===guide)closeGuide()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&guide.classList.contains('open'))closeGuide()});
+ document.querySelectorAll('.guide-tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.guide-tab').forEach(x=>x.classList.toggle('active',x===btn));document.querySelectorAll('.guide-pane').forEach(x=>x.classList.toggle('active',x.id==='guide-'+btn.dataset.guide))}));
  $('hit').addEventListener('click',hit);$('stand').addEventListener('click',stand);$('double').addEventListener('click',dbl);$('next').addEventListener('click',start);$('reset').addEventListener('click',()=>{if(!confirm('¿Reiniciar saldo y estadísticas?'))return;localStorage.removeItem('freebet21-state');cancelAnimationFrame(S.raf);S={bankroll:1000,handNo:0,wins:0,losses:0,pushes:0,deck:shoe(),player:[],dealer:[],finished:true,doubled:false,freeDouble:false,decisions:[],times:[],correct:0,totalDecisions:0,start:0,raf:null};start()});
  load();S.deck=shoe();start();if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
 })();
