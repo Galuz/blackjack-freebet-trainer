@@ -1,9 +1,10 @@
-const CACHE='freebet21-v13';
-const ASSETS=['./manifest.webmanifest','./icon.svg','./deal-animations.js'];
+const CACHE='freebet21-v14';
+const ANIMATION_SRC='./deal-animations.js?v=14';
+const ASSETS=['./manifest.webmanifest','./icon.svg',ANIMATION_SRC];
 
 function withAnimationLoader(html){
   if(html.includes('deal-animations.js')) return html;
-  return html.replace('</body>','<script src="./deal-animations.js"></script></body>');
+  return html.replace('</body>',`<script src="${ANIMATION_SRC}"></script></body>`);
 }
 
 function htmlResponse(html,source){
@@ -58,7 +59,7 @@ self.addEventListener('fetch',event=>{
 
   event.respondWith((async()=>{
     try{
-      const response=await fetch(event.request);
+      const response=await fetch(event.request,{cache:url.pathname.endsWith('/deal-animations.js')?'no-store':'default'});
       const cache=await caches.open(CACHE);
       cache.put(event.request,response.clone());
       return response;
