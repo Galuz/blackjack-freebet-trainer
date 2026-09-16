@@ -1,5 +1,5 @@
-const CACHE='freebet21-v14';
-const ANIMATION_SRC='./deal-animations.js?v=14';
+const CACHE='freebet21-v15';
+const ANIMATION_SRC='./deal-animations.js?v=15';
 const ASSETS=['./manifest.webmanifest','./icon.svg',ANIMATION_SRC];
 
 function withAnimationLoader(html){
