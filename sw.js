@@ -1,21 +1,69 @@
-const CACHE='freebet21-v12';
-const ASSETS=['./','./index.html','./manifest.webmanifest','./icon.svg','./deal-animations.js'];
-self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));self.skipWaiting();});
-self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim();});
+const CACHE='freebet21-v13';
+const ASSETS=['./manifest.webmanifest','./icon.svg','./deal-animations.js'];
+
+function withAnimationLoader(html){
+  if(html.includes('deal-animations.js')) return html;
+  return html.replace('</body>','<script src="./deal-animations.js"></script></body>');
+}
+
+function htmlResponse(html,source){
+  const headers=new Headers();
+  source.headers.forEach((value,key)=>{
+    const k=key.toLowerCase();
+    if(k!=='content-length'&&k!=='content-encoding') headers.set(key,value);
+  });
+  headers.set('content-type','text/html; charset=utf-8');
+  return new Response(html,{status:source.status,statusText:source.statusText,headers});
+}
+
+async function fetchPatchedIndex(request='./index.html'){
+  const response=await fetch(request,{cache:'no-store'});
+  const html=withAnimationLoader(await response.text());
+  const patched=htmlResponse(html,response);
+  const cache=await caches.open(CACHE);
+  await cache.put('./index.html',patched.clone());
+  await cache.put('./',patched.clone());
+  return patched;
+}
+
+self.addEventListener('install',event=>{
+  event.waitUntil((async()=>{
+    const cache=await caches.open(CACHE);
+    await cache.addAll(ASSETS);
+    try{await fetchPatchedIndex('./index.html')}catch{}
+    self.skipWaiting();
+  })());
+});
+
+self.addEventListener('activate',event=>{
+  event.waitUntil((async()=>{
+    const keys=await caches.keys();
+    await Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)));
+    await self.clients.claim();
+  })());
+});
+
 self.addEventListener('fetch',event=>{
-  if(event.request.method!=='GET')return;
+  if(event.request.method!=='GET') return;
+  const url=new URL(event.request.url);
+  const isNavigation=event.request.mode==='navigate'||url.pathname.endsWith('/')||url.pathname.endsWith('/index.html');
+
+  if(isNavigation){
+    event.respondWith((async()=>{
+      try{return await fetchPatchedIndex(event.request)}
+      catch{return (await caches.match('./index.html'))||(await caches.match('./'))}
+    })());
+    return;
+  }
+
   event.respondWith((async()=>{
     try{
       const response=await fetch(event.request);
-      const url=new URL(event.request.url);
-      if((url.pathname.endsWith('/')||url.pathname.endsWith('/index.html'))&&response.headers.get('content-type')?.includes('text/html')){
-        let html=await response.text();
-        if(!html.includes('deal-animations.js'))html=html.replace('</body>','<script src="./deal-animations.js"></script></body>');
-        const patched=new Response(html,{status:response.status,statusText:response.statusText,headers:response.headers});
-        caches.open(CACHE).then(cache=>cache.put(event.request,patched.clone()));
-        return patched;
-      }
-      const copy=response.clone();caches.open(CACHE).then(cache=>cache.put(event.request,copy));return response;
-    }catch(e){return (await caches.match(event.request))||(await caches.match('./index.html'));}
+      const cache=await caches.open(CACHE);
+      cache.put(event.request,response.clone());
+      return response;
+    }catch{
+      return await caches.match(event.request);
+    }
   })());
 });
