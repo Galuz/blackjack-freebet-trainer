@@ -5,6 +5,7 @@
   const next=document.getElementById('next');
   const split=document.getElementById('split');
   const reset=document.getElementById('reset');
+  const sound=document.getElementById('sound');
   if(!dealer||!hands)return;
 
   const style=document.createElement('style');
@@ -26,6 +27,50 @@
     }
   `;
   document.head.appendChild(style);
+
+  // Separate, lightweight Web Audio effect for the physical card-slide sound.
+  // It is unlocked from the same user gesture that starts a deal, which keeps
+  // it reliable in iOS/PWA mode without changing the app's existing beeps.
+  let dealAudio=null;
+  let noiseBuffer=null;
+  const soundEnabled=()=>!sound||!sound.textContent.includes('🔇');
+  const ensureDealAudio=()=>{
+    if(!soundEnabled())return null;
+    try{
+      if(!dealAudio){
+        const Ctx=window.AudioContext||window.webkitAudioContext;
+        if(!Ctx)return null;
+        dealAudio=new Ctx();
+        const len=Math.max(1,Math.floor(dealAudio.sampleRate*.085));
+        noiseBuffer=dealAudio.createBuffer(1,len,dealAudio.sampleRate);
+        const data=noiseBuffer.getChannelData(0);
+        for(let i=0;i<len;i++)data[i]=(Math.random()*2-1)*(1-i/len*.35);
+      }
+      if(dealAudio.state==='suspended')dealAudio.resume();
+      return dealAudio;
+    }catch{return null}
+  };
+  const cardSlideSound=(delay=0,level=1)=>{
+    if(!soundEnabled())return;
+    const a=ensureDealAudio();
+    if(!a||!noiseBuffer)return;
+    try{
+      const when=a.currentTime+Math.max(0,delay)/1000;
+      const src=a.createBufferSource();
+      const band=a.createBiquadFilter();
+      const gain=a.createGain();
+      src.buffer=noiseBuffer;
+      band.type='bandpass';
+      band.frequency.setValueAtTime(1850,when);
+      band.Q.setValueAtTime(.7,when);
+      gain.gain.setValueAtTime(.0001,when);
+      gain.gain.exponentialRampToValueAtTime(.038*level,when+.012);
+      gain.gain.exponentialRampToValueAtTime(.0001,when+.082);
+      src.connect(band).connect(gain).connect(a.destination);
+      src.start(when);
+      src.stop(when+.09);
+    }catch{}
+  };
 
   // The app's core waits 500 ms after the initial render and 300 ms after a
   // split. Stretch only those one-shot waits when a deal/split was just
@@ -58,6 +103,7 @@
   };
 
   const armInitialDeal=()=>{
+    ensureDealAudio();
     resetRoundTracking();
     initialWaitArmedUntil=performance.now()+10000;
   };
@@ -65,14 +111,23 @@
   // Capture runs before the app's existing onclick handlers.
   play?.addEventListener('click',armInitialDeal,true);
   next?.addEventListener('click',armInitialDeal,true);
-  split?.addEventListener('click',()=>{splitWaitArmedUntil=performance.now()+2500},true);
+  split?.addEventListener('click',()=>{
+    ensureDealAudio();
+    splitWaitArmedUntil=performance.now()+2500;
+  },true);
   reset?.addEventListener('click',resetRoundTracking,true);
 
   const animateCard=(el,delay=0,kind='normal')=>{
     if(!el)return;
     el.style.animationDelay=delay+'ms';
-    if(kind==='initial')el.classList.add('initial-deal');
-    if(kind==='split')el.classList.add('split-card');
+    if(kind==='initial'){
+      el.classList.add('initial-deal');
+      cardSlideSound(delay,.95);
+    }
+    if(kind==='split'){
+      el.classList.add('split-card');
+      cardSlideSound(delay,.9);
+    }
     el.classList.add('deal-live');
   };
 
